@@ -245,7 +245,7 @@ const NavSearch = () => {
                         value={`${item.name} ${section.title} ${item.shortcut}`}
                         onSelect={() => onSearchItemSelect(item)}
                       >
-                        {item.icon && <i className={classnames('text-xl', item.icon)} />}
+                        {/* {item.icon && <i className={classnames('text-xl', item.icon)} />} */}
                         {item.name}
                       </SearchItem>
                     )

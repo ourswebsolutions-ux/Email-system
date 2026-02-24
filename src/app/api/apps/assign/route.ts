@@ -1,5 +1,6 @@
 // app/api/user-email-assignments/route.ts
 import { NextResponse } from 'next/server'
+
 import prisma from '@/db'
 import { getAuthUser } from '@/utils/backend-helper'
 
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
   try {
     // Process each mailbox
     const assignments = []
+
     for (const mailbox of body.mailboxes) {
       if (!mailbox.email) continue
 
@@ -61,6 +63,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Failed to assign emails:', err)
-    return NextResponse.json({ error: 'Failed to assign' }, { status: 500 })
+    
+return NextResponse.json({ error: 'Failed to assign' }, { status: 500 })
   }
 }

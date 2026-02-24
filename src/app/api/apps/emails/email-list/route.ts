@@ -18,20 +18,9 @@ export async function GET(request: Request) {
     const page = Math.max(1, Number(searchParams.get('page')) || 1)
     const perPage = 20
 
-    let where: any = {
-      folder,
-      deletedAt: false,
+    let where: any = { folder, deletedAt: false }
 
-      // Skip completely empty/unusable emails
-      OR: [
-        { subject: { not: null } },
-        { body: { not: null } },
-        { htmlBody: { not: null } },
-        { fromName: { not: null } },
-        { fromEmail: { not: null } }
-      ]
-    }
-
+    // ── Non-admin: only assigned emails by email address ──────────────
     let userAssignments: Record<string, { isRead: boolean }> = {}
 
     if (!isSuperAdmin) {
@@ -46,31 +35,31 @@ export async function GET(request: Request) {
         return NextResponse.json({ emails: [], total: 0, page, pages: 0 })
       }
 
-      where.OR.push({ to: { in: assignedEmails } })
-      where.OR.push({ fromEmail: { in: assignedEmails } })
+      where.OR = [
+        { to: { in: assignedEmails } },
+        { fromEmail: { in: assignedEmails } }
+      ]
 
+      // map assignments for quick lookup
       userAssignments = Object.fromEntries(
         assigned.map(a => [a.email!, { isRead: a.isRead }])
       )
     }
 
-    // Search filter
+    // ── Search filter ──────────────────────────────────────────────
     if (search) {
       const searchFilter = {
         OR: [
           { subject: { contains: search } },
           { fromEmail: { contains: search } },
-          { fromName: { contains: search } },
-          { body: { contains: search } },
-          { htmlBody: { contains: search } }
+          { fromName: { contains: search } }
         ]
       }
 
-      where = where.OR?.length > 1
-        ? { AND: [where, searchFilter] }
-        : { ...where, ...searchFilter }
+      where = where.OR ? { AND: [where, searchFilter] } : { ...where, ...searchFilter }
     }
 
+    // ── Fetch emails with pagination ───────────────────────────────
     const [emails, total] = await Promise.all([
       prisma.email.findMany({
         where,
@@ -82,14 +71,17 @@ export async function GET(request: Request) {
       prisma.email.count({ where })
     ])
 
-    // Override isRead for assigned users
+    // ── Override isRead for non-admin users based on their assignment ─
     const finalEmails = emails.map(email => {
-      if (isSuperAdmin) return email
+      if (!isSuperAdmin) {
+        // check both fromEmail and to
+        const assignedKey = userAssignments[email.to!] || userAssignments[email.fromEmail!]
 
-      const assignedKey = userAssignments[email.to ?? ''] || userAssignments[email.fromEmail ?? '']
+        if (assignedKey) return { ...email, isRead: assignedKey.isRead }
+      }
 
       
-return assignedKey ? { ...email, isRead: assignedKey.isRead } : email
+return email
     })
 
     return NextResponse.json({

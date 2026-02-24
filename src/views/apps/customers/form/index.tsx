@@ -20,7 +20,7 @@ import {
 import { useSession } from 'next-auth/react'
 
 import { showError, showSuccess } from '@/front-helper'
-
+import { sendNotification } from '@/utils/frontend-helper'
 const dummyEmails = [
   'info@company.com', 'support@company.com', 'hr@company.com',
   'billing@company.com', 'sales@company.com', 'admin@company.com',
@@ -73,7 +73,7 @@ export default function EmailAssignmentForm() {
       let hasMore = true
 
       while (hasMore) {
-        const res = await fetch(`/api/apps/emails/get?folder=inbox&page=${page}`)
+        const res = await fetch(`/api/apps/emails/email-list?folder=inbox&page=${page}`)
 
         if (!res.ok) {
           console.error(`Failed to fetch page ${page}`)
@@ -170,6 +170,11 @@ export default function EmailAssignmentForm() {
       if (res.ok) {
         setAssignments([{ userId: null, emails: [] }])
         console.log('Saved')
+        sendNotification(
+          `${payload.email}successfully assign to the other user `,
+          false,
+          '/email/list'
+        )
         showSuccess("email Assign successfully")
       } else {
         console.error('Failed to save assignments')

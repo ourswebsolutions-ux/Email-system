@@ -7,6 +7,30 @@ import pusher from '@/libs/pusher-backened'
 import { apiResponse, catchErrors } from '@/utils/backend-helper'
 import prisma from '@/db'
 
+
+
+
+export async function GET(req: NextRequest) {
+  try {
+    const userId = req.nextUrl.searchParams.get('userId')
+    const take = parseInt(req.nextUrl.searchParams.get('paginationTake') || '5', 10)
+
+    if (!userId) return catchErrors(new Error('userId required'), 'userId is required', 400)
+
+    const notifications = await prisma.notifications.findMany({
+      where: { user_id: userId },
+      take,
+      orderBy: { createdAt: 'desc' }
+    })
+
+    const totalNotifications = await prisma.notifications.count({ where: { user_id: userId } })
+
+    return apiResponse({ notifications, totalNotifications }, 'Notifications fetched successfully')
+  } catch (error) {
+    return catchErrors(error as Error, 'Failed to fetch notifications')
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()

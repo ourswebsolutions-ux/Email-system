@@ -19,10 +19,17 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import Button from '@mui/material/Button'
 import type { Theme } from '@mui/material/styles'
 
-// Third Party Components
-
 import classnames from 'classnames'
 
+import { sendNotification } from '@/utils/frontend-helper'
+
+// import { getAuthUser } from '@/utils/backend-helper'
+// Third Party Components
+
+// import { getAuthSession } from '@/helper'
+
+
+// import { getAuthUser } from '@/utils/backend-helper'
 import ScrollWrapper from '@/components/ScrollWrapper'
 
 // Util & Helper Imports
@@ -41,7 +48,12 @@ const NotificationDropdown = () => {
   const [notificationsState, setNotificationsState] = useState<NotificationsType[]>([])
   const [totalNotifications, setTotalNotifications] = useState(0)
   const [paginationTake, setPaginationTake] = useState(5)
-
+  // const user = getAuthSession()
+// 
+  // alert(user?.id)
+  // const userdata 
+  // const userData= getAuthUser()
+  // alert(userData)
   // Notification count based on unread notifications
   const notificationCount = notificationsState.filter(notification => !notification.read).length as number
 
@@ -55,7 +67,7 @@ const NotificationDropdown = () => {
   const { settings } = useSettings()
 
   useEffect(() => {
-    const channelName = `notification-${'cm9b6stzk000zchv4z3gjg5gu'}`
+    const channelName = `notification-${'cmlw3e2t3000xoja554fdxjzx'}`
     const isBoundRef = { current: false }
 
     const channel = pusherClient.subscribe(channelName)
@@ -94,7 +106,7 @@ const NotificationDropdown = () => {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const req = await fetch(`/api/notify?userId=${'cm9b6stzk000zchv4z3gjg5gu'}&paginationTake=${paginationTake}`)
+      const req = await fetch(`/api/notify?userId=${'cmlw3e2t3000xoja554fdxjzx'}&paginationTake=${paginationTake}`)
 
       if (req.ok) {
         const res = await req.json()
@@ -166,7 +178,7 @@ const NotificationDropdown = () => {
     setNotificationsState(newNotifications)
 
     try {
-      const response = await fetch(`/api/notify?userId=${'cm9b6stzk000zchv4z3gjg5gu'}`, {
+      const response = await fetch(`/api/notify?userId=${'cmlw3e2t3000xoja554fdxjzx'}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ read: true })
@@ -246,16 +258,16 @@ const NotificationDropdown = () => {
         anchorEl={anchorRef.current}
         {...(isSmallScreen
           ? {
-              className: 'is-full !mbs-3 z-[1] max-bs-[550px] bs-[550px]',
-              modifiers: [
-                {
-                  name: 'preventOverflow',
-                  options: {
-                    padding: themeConfig.layoutPadding
-                  }
+            className: 'is-full !mbs-3 z-[1] max-bs-[550px] bs-[550px]',
+            modifiers: [
+              {
+                name: 'preventOverflow',
+                options: {
+                  padding: themeConfig.layoutPadding
                 }
-              ]
-            }
+              }
+            ]
+          }
           : { className: 'is-96 !mbs-3 z-[1] max-bs-[550px] bs-[550px]' })}
       >
         {({ TransitionProps, placement }) => (
@@ -374,7 +386,7 @@ const NotificationDropdown = () => {
                         See Previous Notification
                       </Button>
                     )}
-                    {/* <Button
+                    <Button
                       variant='contained'
                       className='mt-6'
                       color='primary'
@@ -387,7 +399,7 @@ const NotificationDropdown = () => {
                       }
                     >
                       Send Test Notification
-                    </Button> */}
+                    </Button>
                   </div>
                 </div>
               </ClickAwayListener>

@@ -195,7 +195,7 @@ export async function DELETE(req: NextRequest) {
 
     if (userLocationCount) throw new Error('User is linked to location table and cannot be deleted')
 
-    if (userRoleCount) throw new Error('User is linked to role table and cannot be deleted')
+    // if (userRoleCount) throw new Error('User is linked to role table and cannot be deleted')
 
     await prisma.user.delete({
       where: { id: userId }

@@ -718,19 +718,19 @@ export default async function seedEmails() {
     await prisma.email.deleteMany({})
 
     // Prepare new email data
-    const data = emails.map((email, index) => ({
-      to: email.toLowerCase().trim(),
-      userId: ADMIN_ID,
-      uid: -1 * (index + 1) // deterministic negative UID
-    }))
+    // const data = emails.map((email, index) => ({
+    //   to: email.toLowerCase().trim(),
+    //   userId: ADMIN_ID,
+    //   uid: -1 * (index + 1) // deterministic negative UID
+    // }))
 
-    // Insert all emails at once
-    const result = await prisma.email.createMany({
-      data,
-      skipDuplicates: true
-    })
+    // // Insert all emails at once
+    // const result = await prisma.email.createMany({
+    //   data,
+    //   skipDuplicates: true
+    // })
 
-    console.log(`Success: ${result.count} emails created (out of ${emails.length})`)
+    // console.log(`Success: ${result.count} emails created (out of ${emails.length})`)
   } catch (error) {
     console.error('Seeder failed:', error)
   } finally {

@@ -375,15 +375,15 @@ const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }
                     </p>
                   </div>
                   <div className='flex flex-col items-start gap-0.5'>
-                    <div
+                    {/* <div
                       className={classnames(styles.itemWrapper, { [styles.active]: settings.layout === 'horizontal' })}
                       onClick={() => handleChange('layout', 'horizontal')}
                     >
                       <LayoutHorizontal />
-                    </div>
-                    <p className={styles.itemLabel} onClick={() => handleChange('layout', 'horizontal')}>
+                    </div> */}
+                    {/* <p className={styles.itemLabel} onClick={() => handleChange('layout', 'horizontal')}>
                       Horizontal
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               </div>

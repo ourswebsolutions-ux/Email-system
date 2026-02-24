@@ -21,24 +21,14 @@ export interface EmailsResponse {
     hasPrevPage: boolean
 }
 
-// Helper: check if user is super admin
 async function isSuperAdmin(userId: string): Promise<boolean> {
     const user = await prisma.user.findUnique({
         where: { id: String(userId) },
-        select: {
-            roles: {
-                select: {
-                    role: { select: { name: true } }
-                }
-            }
-        }
+        select: { roles: { select: { role: { select: { name: true } } } } }
     })
 
-    if (!user) return false
 
-    return user.roles.some(
-        r => r.role.name.toLowerCase() === 'super-admin'
-    )
+    return user?.roles.some(r => r.role.name.toLowerCase() === 'super-admin') ?? false
 }
 
 export default async function fetchEmails(
@@ -48,37 +38,26 @@ export default async function fetchEmails(
 ): Promise<EmailsResponse> {
     if (!userId) throw new Error('userId is required')
 
-    // Ensure page and pageSize are numbers
     const pageNumber = Number(page) || 1
     const size = Number(pageSize) || 20
 
-    // Check if super admin
     const superAdmin = await isSuperAdmin(userId)
-     
-    // Build filter
+
     const whereFilter: any = { deletedAt: false }
 
-    console.log(superAdmin, "gelo super admin")
-
     if (!superAdmin) {
-        // Only emails assigned to this user
         whereFilter.assignments = { some: { userId: String(userId) } }
     }
 
-    // Count total emails
     const totalRecords = await prisma.email.count({ where: whereFilter })
     const totalPages = Math.ceil(totalRecords / size)
     const hasNextPage = pageNumber < totalPages
     const hasPrevPage = pageNumber > 1
 
-    // Fetch emails
     const emails = await prisma.email.findMany({
         skip: (pageNumber - 1) * size,
         take: size,
-        orderBy: [
-            { date: 'desc' },
-            { createdAt: 'desc' }
-        ],
+        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
         where: whereFilter,
         select: {
             id: true,
@@ -88,12 +67,26 @@ export default async function fetchEmails(
             date: true,
             createdAt: true,
             user: { select: { first_name: true, last_name: true } },
-            assignments: { select: { user: { select: { id: true, first_name: true, last_name: true } } } }
+            assignments: {
+                select: { user: { select: { id: true, first_name: true, last_name: true } } }
+            }
         }
     })
 
-    // Format emails
-    const formattedEmails: EmailTableRow[] = emails.map(email => {
+    // Remove duplicates by email (to), keep most recent
+    const uniqueMap = new Map<string, typeof emails[0]>()
+
+    for (const email of emails) {
+        const key = (email.to || '').trim().toLowerCase()
+
+        if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, email)
+        }
+    }
+
+    const uniqueEmails = Array.from(uniqueMap.values())
+
+    const formattedEmails: EmailTableRow[] = uniqueEmails.map(email => {
         const assignedUsers = email.assignments
             .map(a => a.user)
             .map(u => (u.first_name ? `${u.first_name} ${u.last_name}` : '-'))
@@ -110,7 +103,7 @@ export default async function fetchEmails(
             assignedTo: assignedUsers,
             assignedUserIds,
             folder: email.folder,
-            createdAt: email.createdAt
+            createdAt: email.date // ← fixed field name (was createdAt)
         }
     })
 

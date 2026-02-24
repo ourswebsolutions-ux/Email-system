@@ -1,8 +1,11 @@
 // app/dashboard/page.tsx
 'use client'
+import { useState, useEffect } from 'react'
 
 import { Box, Typography, Grid, Card, CardContent, Button, List, ListItem, ListItemText } from '@mui/material'
 import { People as PeopleIcon, Email as EmailIcon } from '@mui/icons-material'
+
+
 
 import DynamicTable from '@/components/DynamicTable'
 
@@ -28,6 +31,78 @@ const notifications = [
 ]
 
 export default function Dashboard() {
+
+const [emails, setEmails] = useState<{ id: string; to: string }[]>([])
+
+  const [users, setUsers] = useState<{ id: string; fullName: string }[]>([])
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const res = await fetch('/api/users')
+        const json = await res.json()
+
+        if (!res.ok) throw new Error(json.message)
+
+        const formatted = json.data.users.map((u: any) => ({
+          id: u.id,
+          fullName: `${u.first_name} ${u.last_name}`
+        }))
+
+        setUsers(formatted)
+      } catch (err) {
+        console.error('Failed to load users:', err)
+      }
+    }
+
+    loadUsers()
+  }, [])
+
+
+    useEffect(() => {
+    const loadInbox = async () => {
+      const allEmails: { id: string; to: string; uid: number }[] = []
+      let page = 1
+      let hasMore = true
+
+      while (hasMore) {
+        const res = await fetch(`/api/apps/emails/get?folder=inbox&page=${page}`)
+
+        if (!res.ok) {
+          console.error(`Failed to fetch page ${page}`)
+          break
+        }
+
+        const json = await res.json()
+
+        if (!json.emails || json.emails.length === 0) {
+          hasMore = false
+          break
+        }
+
+        // Filter & deduplicate
+        const formatted = json.emails
+          .filter((email: any) => email.folder === 'inbox' && !email.deletedAt)
+          .reduce((acc: any[], email: any) => {
+            if (!acc.some(e => e.to === email.to)) {
+              acc.push({ id: email.id, to: email.to, uid: email.uid })
+            }
+
+
+            return acc
+          }, [])
+
+        allEmails.push(...formatted)
+        page++
+      }
+
+      setEmails(allEmails)
+      console.log('Total emails fetched:', allEmails.length)
+    }
+
+    loadInbox()
+  }, [])
+
   return (
     <Box sx={{ p: 4 }}>
       {/* Top Summary Cards - KEEP UNTOUCHED */}
@@ -39,7 +114,7 @@ export default function Dashboard() {
                 <PeopleIcon color="primary" sx={{ mr: 2 }} />
                 <Box>
                   <Typography variant="subtitle2">Total Users</Typography>
-                  <Typography variant="h5">1,248</Typography>
+                  <Typography variant="h5">{users.length}</Typography>
                 </Box>
               </Box>
             </CardContent>
@@ -53,6 +128,19 @@ export default function Dashboard() {
                 <EmailIcon color="success" sx={{ mr: 2 }} />
                 <Box>
                   <Typography variant="subtitle2">All Emails</Typography>
+                  <Typography variant="h5">{emails.length}</Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <EmailIcon color="warning" sx={{ mr: 2 }} />
+                <Box>
+                  <Typography variant="subtitle2">All Assigned  Emails</Typography>
                   <Typography variant="h5">4,392</Typography>
                 </Box>
               </Box>
@@ -66,7 +154,7 @@ export default function Dashboard() {
         {/* Left Column */}
         <Grid item xs={12} md={8}>
           {/* Top Card: Assigned Emails with Total Users */}
-         
+
           {/* Assigned Emails Table */}
           <Card>
             <CardContent>
@@ -92,7 +180,7 @@ export default function Dashboard() {
         {/* Right Column */}
         <Grid item xs={12} md={4}>
           {/* Notifications */}
-          <Card sx={{ mb: 3 }}>
+          {/* <Card sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Notifications
@@ -105,24 +193,34 @@ export default function Dashboard() {
                 ))}
               </List>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Quick Actions */}
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+
+              <Typography variant="h6" gutterBottom >
                 Quick Actions
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Button variant="outlined" size="small" fullWidth>
-                  View All Inboxes
-                </Button>
-                <Button variant="outlined" size="small" fullWidth>
-                  Assign Email
-                </Button>
-                <Button variant="outlined" size="small" fullWidth>
-                  Manage Users
-                </Button>
+                <a href='/apps/email'>
+                  <Button variant="outlined" size="small" fullWidth>
+                    View All Inboxes
+                  </Button>
+                </a>
+                <a href='/user/list'>
+
+                  <Button variant="outlined" size="small" fullWidth>
+                    View All Users
+                  </Button>
+                </a>
+                <a href='/email/form'>
+
+                  <Button variant="outlined" size="small" fullWidth>
+                    Assign Emails
+                  </Button>
+                </a>
+
               </Box>
             </CardContent>
           </Card>

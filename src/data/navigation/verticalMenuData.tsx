@@ -9,7 +9,7 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
       label: '5',
       color: 'error'
     },
-    href: '/apps/ecommerce/dashboard',
+    href: '/dashboards/crm',
     permission: 'view:dashboard',
     icon: 'tabler-smart-home'
   },
