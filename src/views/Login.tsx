@@ -113,8 +113,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   } = useForm<FormData>({
     resolver: valibotResolver(schema),
     defaultValues: {
-      email: 'superadmin@gmail.com',
-      password: 'superadmin'
+      email: '',
+      password: ''
     }
   })
 
@@ -175,12 +175,12 @@ const Login = ({ mode }: { mode: SystemMode }) => {
             <Typography variant='h4'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</Typography>
             <Typography>Please sign-in to your account and start the adventure</Typography>
           </div>
-          <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
+          {/* <Alert icon={true} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
             <Typography variant='body2' color='primary'>
               Email: <span className='font-medium'>supper@gmail.com</span> / Pass:{' '}
               <span className='font-medium'>superadmin</span>
             </Typography>
-          </Alert>
+          </Alert> */}
           <form
             noValidate
             autoComplete='off'
@@ -259,10 +259,10 @@ const Login = ({ mode }: { mode: SystemMode }) => {
               Login
             </Button>
             <div className='flex justify-center items-center flex-wrap gap-2'>
-              <Typography>New on our platform?</Typography>
-              <Typography component={Link} href={getLocalizedUrl('/register', locale as Locale)} color='primary'>
+              {/* <Typography>New on our platform?</Typography> */}
+              {/* <Typography component={Link} href={getLocalizedUrl('/register', locale as Locale)} color='primary'>
                 Create an account
-              </Typography>
+              </Typography> */}
             </div>
           </form>
         </div>

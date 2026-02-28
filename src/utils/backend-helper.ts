@@ -113,7 +113,7 @@ export async function sendEmail(toEmail: string, subject: string, text: string, 
   try {
     const transporter = NodeMailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: 2525,
+      port: 587,
       secure: false,
       auth: {
         user: process.env.SENDER_USER,

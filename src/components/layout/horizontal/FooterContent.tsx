@@ -25,7 +25,7 @@ const FooterContent = () => {
         <span>{`❤️`}</span>
         <span className='text-textSecondary'>{` by `}</span>
         <span className='text-primary uppercase'>
-          DDB
+          Axoraweb Solutions
         </span>
       </p>
       {/* {!isBreakpointReached && (

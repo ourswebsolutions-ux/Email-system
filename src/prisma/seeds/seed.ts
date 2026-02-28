@@ -3,16 +3,17 @@ import permissionsSeed from './permissions'
 import roleSeed from './role'
 import countrySeed from './countrySeed'
 import prisma from '@/db'
+
 // import mailSeedConsole from './mailSeedConsole';  // make sure 'from' is included
 import POST from './emailseed'
 
 async function main() {
   try {
     // Optional other seeds
-    // await permissionsSeed();
-    // await roleSeed();
-    // await userSeed();
-    // await countrySeed();
+    await permissionsSeed();
+    await roleSeed();
+    await userSeed();
+    await countrySeed();
      await POST()
 
     // Run mail seed
