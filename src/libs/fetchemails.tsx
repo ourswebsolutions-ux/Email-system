@@ -12,6 +12,8 @@ export interface EmailTableRow {
     assignedUserIds: string[]
     folder: string
     date: string
+     
+
 }
 
 export interface EmailsResponse {

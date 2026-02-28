@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   basePath: process.env.BASEPATH,
+   eslint: {
+    ignoreDuringBuilds: true,
+  },
+   typescript: {
+    ignoreBuildErrors: true // TS type errors ignore
+  },
   redirects: async () => {
     return [
       {

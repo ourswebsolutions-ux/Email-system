@@ -28,6 +28,8 @@ const defaultUserData: ExtendedUser = {
   password: '',
   first_name: '',
   last_name: '',
+  username: '',
+    managerId: null, 
   image: '',
   emailVerified: null,
   roles: [],

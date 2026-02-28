@@ -15,8 +15,7 @@ export async function GET(): Promise<NextResponse> {
         email: true,
         first_name: true,
         last_name: true,
-        phone_number: true,
-        organization: true
+        
       }
     })
 

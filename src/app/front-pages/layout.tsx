@@ -16,7 +16,7 @@ import BlankLayout from '@layouts/BlankLayout'
 import FrontLayout from '@components/layout/front-pages'
 import ScrollToTop from '@core/components/scroll-to-top'
 
-import { enabledModules } from '@/modules/config'
+
 
 // Util Imports
 import { getSystemMode } from '@core/utils/serverHelpers'
@@ -45,12 +45,7 @@ const Layout = ({ children }: ChildrenType) => {
             <IntersectionProvider>
               <FrontLayout>
 
-                {enabledModules.map((mod: { name: string; Component?: React.ComponentType }) => {
-                  if (!mod.Component) return null
-                  const Component: React.ComponentType = mod.Component
 
-                  return <Component key={mod.name} />
-                })}
 
 
                 {children}

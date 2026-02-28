@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+
 import { Button, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, Backdrop, CircularProgress } from '@mui/material';
 
 interface ConfirmationDialogProps {
@@ -8,7 +9,7 @@ interface ConfirmationDialogProps {
   setOpen: (open: boolean) => void;
   onConfirm: () => void;
 
-  IsLoading?: boolean;
+  IsLoading: boolean;
 }
 
 const ConfirmationDialog = ({ title = 'Are you sure?', description, open, setOpen, onConfirm, IsLoading }: ConfirmationDialogProps) => {
@@ -63,7 +64,7 @@ const ConfirmationDialog = ({ title = 'Are you sure?', description, open, setOpe
       </DialogActions>
 
 
-      <Backdrop open={IsLoading} sx={{ zIndex: 1201 }}>
+      <Backdrop open={!!IsLoading} sx={{ zIndex: 1201 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
     </Dialog>

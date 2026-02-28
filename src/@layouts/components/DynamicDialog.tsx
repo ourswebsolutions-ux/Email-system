@@ -1,8 +1,8 @@
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
+
 import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
+
 import type { Breakpoint } from '@mui/material/styles'
 
 interface DialogsProps {

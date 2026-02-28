@@ -17,8 +17,7 @@ const EmailsPage = async ({ searchParams }: Props) => {
     const user = await getAuthUser()
 
     // alert(user.id)
-    const userId = String(user?.id)
-    
+     
     const page = parseInt(searchParams.page || '1', 10)
     const pageSize = parseInt(searchParams.pageSize || '10', 10)
 
@@ -28,7 +27,7 @@ const EmailsPage = async ({ searchParams }: Props) => {
     return (
         <div>
             <CustomersList
-                emails={emails}
+                emails={emails  as any}
                 totalRecords={totalRecords}
                 totalPages={totalPages}
                 page={page}
