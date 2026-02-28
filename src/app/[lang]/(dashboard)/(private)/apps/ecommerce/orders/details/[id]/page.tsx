@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import OrderDetails from '@views/apps/ecommerce/orders/details'
+
 
 // Data Imports
 import { getEcommerceData } from '@/app/server/actions'
@@ -38,7 +38,10 @@ const OrderDetailsPage = async ({ params }: { params: { id: string } }) => {
     redirect('/not-found')
   }
 
-  return filteredData ? <OrderDetails orderData={filteredData} order={params.id} /> : null
+  return (
+    <>
+    </>
+  )
 }
 
 export default OrderDetailsPage

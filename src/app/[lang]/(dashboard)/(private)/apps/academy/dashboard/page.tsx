@@ -2,13 +2,6 @@
 import Grid from '@mui/material/Grid'
 
 // Component Imports
-import WelcomeCard from '@views/apps/academy/dashboard/WelcomeCard'
-import InterestedTopics from '@views/apps/academy/dashboard/InterestedTopics'
-import PopularInstructors from '@views/apps/academy/dashboard/PopularInstructors'
-import TopCourses from '@views/apps/academy/dashboard/TopCourses'
-import UpcomingWebinar from '@views/apps/academy/dashboard/UpcomingWebinar'
-import AssignmentProgress from '@views/apps/academy/dashboard/AssignmentProgress'
-import CourseTable from '@views/apps/academy/dashboard/CourseTable'
 
 // Data Imports
 import { getAcademyData } from '@/app/server/actions'
@@ -37,8 +30,8 @@ const AcademyDashboard = async () => {
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <WelcomeCard />
+      {/* <Grid item xs={12}>
+       
       </Grid>
       <Grid item xs={12} md={8}>
         <InterestedTopics />
@@ -57,7 +50,7 @@ const AcademyDashboard = async () => {
       </Grid>
       <Grid item xs={12}>
         <CourseTable courseData={data?.courses} />
-      </Grid>
+      </Grid> */}
     </Grid>
   )
 }

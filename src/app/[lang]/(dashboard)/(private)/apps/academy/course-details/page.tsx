@@ -2,11 +2,8 @@
 import Grid from '@mui/material/Grid'
 
 // Component Imports
-import Details from '@views/apps/academy/course-details/Details'
-import Sidebar from '@views/apps/academy/course-details/Sidebar'
 
 // Data Imports
-import { getAcademyData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -28,18 +25,11 @@ import { getAcademyData } from '@/app/server/actions'
 
 const CourseDetailsPage = async () => {
   // Vars
-  const data = await getAcademyData()
+  // const data = await getAcademyData()
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12} md={8}>
-        <Details data={data?.courseDetails} />
-      </Grid>
-      <Grid item xs={12} md={4}>
-        <div className='sticky top-[94px]'>
-          <Sidebar content={data?.courseDetails.content} />
-        </div>
-      </Grid>
+      
     </Grid>
   )
 }

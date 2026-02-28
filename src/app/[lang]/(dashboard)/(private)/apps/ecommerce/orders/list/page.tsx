@@ -1,8 +1,7 @@
 // Component Imports
-import OrderList from '@views/apps/ecommerce/orders/list'
 
 // Data Imports
-import { getEcommerceData } from '@/app/server/actions'
+
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -24,9 +23,11 @@ import { getEcommerceData } from '@/app/server/actions'
 
 const OrdersListPage = async () => {
   // Vars
-  const data = await getEcommerceData()
+  
 
-  return <OrderList orderData={data?.orderData} />
+  return (
+    <></>
+  )
 }
 
 export default OrdersListPage

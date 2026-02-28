@@ -5,7 +5,7 @@ import { fetchProductsById } from '@/libs/fetchProductsById';
 
 // MUI Imports
 
-import ProductsForm from '@views/apps/products/form'
+
 import type { ExtendedProducts } from '@/utils/types'
 
 interface Params {
@@ -23,7 +23,7 @@ const UserViewTab = async ({ params }: { params: Params }) => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12} lg={12} md={12}>
-        <ProductsForm products={products as ExtendedProducts} categories={categories} />
+        
       </Grid>
     </Grid>
   )

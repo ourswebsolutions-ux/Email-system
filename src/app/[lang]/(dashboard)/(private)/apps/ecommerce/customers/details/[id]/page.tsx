@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import type { Customer } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import CustomerDetails from '@/views/apps/ecommerce/customers/details'
+
 
 // Data Imports
 import { getEcommerceData } from '@/app/server/actions'
@@ -38,7 +38,10 @@ const CustomerDetailsPage = async ({ params }: { params: { id: string } }) => {
     redirect('/not-found')
   }
 
-  return filteredData ? <CustomerDetails customerData={filteredData} customerId={params.id} /> : null
+  return (
+    <>
+    </>
+  )
 }
 
 export default CustomerDetailsPage

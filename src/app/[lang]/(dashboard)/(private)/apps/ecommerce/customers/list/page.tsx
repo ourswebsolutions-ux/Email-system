@@ -1,7 +1,7 @@
-import CustomerListTable from '@views/apps/ecommerce/customers/list/CustomerListTable'
+
 
 // Data Imports
-import { getEcommerceData } from '@/app/server/actions'
+
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -23,9 +23,12 @@ import { getEcommerceData } from '@/app/server/actions'
 
 const CustomerListTablePage = async () => {
   // Vars
-  const data = await getEcommerceData()
+  // const data = await getEcommerceData()
 
-  return <CustomerListTable customerData={data?.customerData} />
+  return (
+    <>
+    </>
+  )
 }
 
 export default CustomerListTablePage

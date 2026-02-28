@@ -1,6 +1,6 @@
 import { Grid, Container } from '@mui/material';
 
-import ProductsShowComponent from '@/views/apps/products/show';
+
 import { fetchProductsById } from '@/libs/fetchProductsById';
 import type { ExtendedProducts } from '@/utils/types';
 
@@ -26,8 +26,7 @@ const ProductsShow = async ({ params }: Props) => {
     <Container>
       <Grid container spacing={4}>
         <Grid item xs={12}>
-          <ProductsShowComponent products={products as ExtendedProducts} />
-        </Grid>
+                  </Grid>
       </Grid>
     </Container>
   );
