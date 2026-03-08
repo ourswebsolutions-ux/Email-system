@@ -1,42 +1,39 @@
-// app/api/user-email-assignments/remove/route.ts
 import { NextResponse } from 'next/server'
-
 import prisma from '@/db'
 import { getAuthUser } from '@/utils/backend-helper'
 
 export async function POST(req: Request) {
   try {
-    // Authenticate user
     const adminUser = await getAuthUser()
+    if (!adminUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Parse and validate request body
     const body = await req.json()
     const { email, userId } = body
 
-    if (!email || !userId || !Array.isArray(userId) || userId.length === 0) {
-      return NextResponse.json({ error: 'This Email not have any user for delete' }, { status: 400 })
+    if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 })
+
+    // CASE 1: Remove assignment
+    if (userId && userId.length > 0) {
+      const removed = await prisma.userEmailAssignment.deleteMany({
+        where: {
+          email, // This works if UserEmailAssignment.email string column is used
+          userId: { in: userId }
+        }
+      })
+      return NextResponse.json({ success: true, removedAssignments: removed.count })
     }
 
-    // Delete assignments matching email and user IDs
-    const deleted = await prisma.userEmailAssignment.deleteMany({
+    // CASE 2: Delete empty inbox email
+    const deletedEmail = await prisma.email.deleteMany({
       where: {
-        email,
-        userId: { in: userId }
+        to: email,  // fromEmail agar sender email
       }
     })
 
-    if (deleted.count === 0) {
-      return NextResponse.json({ error: 'No matching assignment found' }, { status: 404 })
-    }
+    return NextResponse.json({ success: true, deletedEmptyEmails: deletedEmail.count })
 
-    return NextResponse.json({ success: true, deletedCount: deleted.count })
-  } catch (err) {
-    console.error('Failed to remove assigned user:', err)
-    
-return NextResponse.json({ error: 'Failed to remove assignment' }, { status: 500 })
+  } catch (err: any) {
+    console.error("Failed to remove assigned user:", err)
+    return NextResponse.json({ error: err?.message || "Failed to remove assignment" }, { status: 500 })
   }
 }

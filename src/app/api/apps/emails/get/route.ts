@@ -1,5 +1,4 @@
-// app/api/emails/route.ts
-
+// app/api/apps/emails/get/route.ts
 import { NextResponse } from 'next/server'
 import { getAuthUser } from '@/utils/backend-helper'
 import prisma from '@/db'
@@ -17,12 +16,15 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
 
     const folder = searchParams.get('folder') || 'inbox'
-    const search = searchParams.get('search') || ''
     const page = Math.max(1, Number(searchParams.get('page')) || 1)
     const perPage = 20
 
-    // 🔹 Base filters
-    const baseWhere: any = {
+    const to = searchParams.get('to') || ''
+    const from = searchParams.get('from') || ''
+    const subject = searchParams.get('subject') || ''
+
+    // 🔹 Base where: folder + not deleted + at least one non-null field
+    let where: any = {
       folder,
       deletedAt: false,
       OR: [
@@ -34,33 +36,24 @@ export async function GET(request: Request) {
       ]
     }
 
-    let where: any = baseWhere
-    let userAssignments: Record<string, { isRead: boolean }> = {}
-
-    // 🔹 Restrict emails for normal users
+    
+    // 🔹 Normal users: restrict to assigned emails
     if (!isSuperAdmin) {
       const assigned = await prisma.userEmailAssignment.findMany({
         where: { userId: user.id },
         select: { email: true, isRead: true }
       })
 
-      const assignedEmails = assigned
-        .map(a => a.email)
-        .filter(Boolean)
+      const assignedEmails = assigned.map(a => a.email).filter(Boolean)
 
       if (assignedEmails.length === 0) {
-        return NextResponse.json({
-          emails: [],
-          total: 0,
-          page,
-          pages: 0
-        })
+    
+        return NextResponse.json({ emails: [], total: 0, page, pages: 0 })
       }
 
-      // IMPORTANT: Use AND to strictly limit access
       where = {
         AND: [
-          baseWhere,
+          where,
           {
             OR: [
               { to: { in: assignedEmails } },
@@ -69,30 +62,47 @@ export async function GET(request: Request) {
           }
         ]
       }
-
-      userAssignments = Object.fromEntries(
-        assigned.map(a => [a.email!, { isRead: a.isRead }])
-      )
     }
 
-    // 🔹 Search filter
-    if (search) {
-      const searchFilter = {
-        OR: [
-          { subject: { contains: search } },
-          { fromEmail: { contains: search } },
-          { fromName: { contains: search } },
-          { body: { contains: search } },
-          { htmlBody: { contains: search } }
+    // 🔹 Apply 'to' filter only if provided
+    if (to) {
+      const toValue = to.trim().toLowerCase()
+      where = {
+        AND: [
+          where,
+          {
+            OR: [
+              { to: { startsWith: toValue } }, // partial match
+              { to: toValue }                  // exact match
+            ]
+          }
         ]
       }
+    }
 
+    // 🔹 Apply 'from' filter only if provided
+    if (from) {
       where = {
-        AND: [where, searchFilter]
+        AND: [
+          where,
+          { fromEmail: { contains: from, mode: 'insensitive' } }
+        ]
       }
     }
 
-    // 🔹 Fetch emails + count
+    // 🔹 Apply 'subject' filter only if provided
+    if (subject) {
+      where = {
+        AND: [
+          where,
+          { subject: { contains: subject, mode: 'insensitive' } }
+        ]
+      }
+    }
+
+    console.log('Final Prisma where filter:', JSON.stringify(where, null, 2))
+
+    // 🔹 Fetch emails + total count
     const [emails, total] = await Promise.all([
       prisma.email.findMany({
         where,
@@ -104,7 +114,21 @@ export async function GET(request: Request) {
       prisma.email.count({ where })
     ])
 
+
+
     // 🔹 Override isRead for assigned users
+    let userAssignments: Record<string, { isRead: boolean }> = {}
+    if (!isSuperAdmin) {
+      const assigned = await prisma.userEmailAssignment.findMany({
+        where: { userId: user.id },
+        select: { email: true, isRead: true }
+      })
+
+      userAssignments = Object.fromEntries(
+        assigned.map(a => [a.email!, { isRead: a.isRead }])
+      )
+    }
+
     const finalEmails = emails.map(email => {
       if (isSuperAdmin) return email
 
@@ -112,9 +136,7 @@ export async function GET(request: Request) {
         userAssignments[email.to ?? ''] ||
         userAssignments[email.fromEmail ?? '']
 
-      return assignedKey
-        ? { ...email, isRead: assignedKey.isRead }
-        : email
+      return assignedKey ? { ...email, isRead: assignedKey.isRead } : email
     })
 
     return NextResponse.json({
@@ -125,10 +147,6 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Email API error:', error)
-
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

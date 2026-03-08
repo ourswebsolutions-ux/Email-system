@@ -51,7 +51,15 @@ const DynamicTable = <T extends { id: string }>({
   )
 
   const handleDelete = useCallback(async (id: string, rowData: T) => {
-    if (!window.confirm(`Are you sure Delete this ${permissionKey}?`)) return
+
+  if (rowData?.assignedUserIds && rowData.assignedUserIds.length > 0) {
+    // agar assigned user exist karta hai
+    if (!window.confirm('Are you sure you want to delete this Assigned user?')) return
+} else {
+    // agar assigned user nahi hai, normal permission key delete
+    if (!window.confirm(`Are you sure you want to delete this ${permissionKey}?`)) return
+}  
+
 
     try {
       showLoading()

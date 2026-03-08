@@ -35,6 +35,8 @@ type Props = {
   reload: (value: boolean) => void
   handleRead: (uids: number[]) => void
   handleFetchData: () => void
+  searchTerm : string
+  setSearchTerm : string
 }
 
 const MailContent = (props: Props) => {
@@ -56,15 +58,14 @@ const MailContent = (props: Props) => {
     setReload,
     reload,
     handleRead,
-    handleFetchData
+    handleFetchData,
+    setSearchTerm,
+    searchTerm
   } = props
 
   // States
   const [selectedEmails, setSelectedEmails] = useState<Set<number>>(new Set())
   const [drawerOpen, setDrawerOpen] = useState(false)
-
-  const [searchTerm, setSearchTerm] = useState('')
-
 
 
   // Vars
@@ -78,9 +79,10 @@ const MailContent = (props: Props) => {
     emails.filter(
       email =>
         email?.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        email.from.name.toLowerCase().includes(searchTerm.toLowerCase())
+        email?.to?.some(user =>
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        )
     ).length === 0
-
   // Action for deleting single email
   const handleSingleEmailDelete = (e: MouseEvent, emailId: number) => {
     e.stopPropagation()
@@ -121,25 +123,25 @@ const MailContent = (props: Props) => {
         setBackdropOpen={setBackdropOpen}
         setSearchTerm={setSearchTerm}
       />
-   
-  <MailContentActions
-    areFilteredEmailsNone={areFilteredEmailsNone}
-    selectedEmails={selectedEmails}
-    setSelectedEmails={setSelectedEmails}
-    emails={emails}
-    folder={folder}
-    label={label}
-    uniqueLabels={uniqueLabels}
-    setReload={setReload}
-    dispatch={dispatch}
-    handleDelete={handleDelete}
-    handlePremanentDelete={handlePremanentDelete}
-    handleRead={handleRead}
-    handleFetchData={handleFetchData}
-    isSuperAdmin={isSuperAdmin}
-  />
 
-      
+      <MailContentActions
+        areFilteredEmailsNone={areFilteredEmailsNone}
+        selectedEmails={selectedEmails}
+        setSelectedEmails={setSelectedEmails}
+        emails={emails}
+        folder={folder}
+        label={label}
+        uniqueLabels={uniqueLabels}
+        setReload={setReload}
+        dispatch={dispatch}
+        handleDelete={handleDelete}
+        handlePremanentDelete={handlePremanentDelete}
+        handleRead={handleRead}
+        handleFetchData={handleFetchData}
+        isSuperAdmin={isSuperAdmin}
+      />
+
+
       <MailContentList
         isInitialMount={isInitialMount}
         isBelowSmScreen={isBelowSmScreen}

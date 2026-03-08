@@ -42,6 +42,7 @@ const EmailWrapper = ({ folder = 'inbox', label }: { folder?: string; label?: st
   const [totalPages, setTotalPages] = useState(1)
   const [reload, setReload] = useState(false)
   const isInitialMount = useRef(true)
+const [searchTerm, setSearchTerm] = useState('')
 
   const { settings } = useSettings()
   const emailStore = useSelector((state: RootState) => state.emailReducer)
@@ -56,68 +57,77 @@ const EmailWrapper = ({ folder = 'inbox', label }: { folder?: string; label?: st
     setPage(1)
   }, [folder, label])
 
-  const handleFetchData = () => {
-    // Choose API URL depending on folder
-   
+const handleFetchData = () => {
+  // Build query params
+  const params = new URLSearchParams()
+  params.set('folder', folder)
+  params.set('page', String(page))
 
-    const apiUrl =
-      folder === 'trash'
-        ? `/api/apps/emails/delete?folder=trash&page=${page}${label ? `&label=${label}` : ''}` // deleted emails
-        : `/api/apps/emails/get?folder=${folder}&page=${page}${label ? `&label=${label}` : ''}`  // normal folders
+  if (label) params.set('label', label)
 
-    fetch(apiUrl)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => {
-        if (data?.emails) {
-          setTotalPages(data.pages || 1)
+  // ✅ New: pass searchTerm to backend
+  if (searchTerm) params.set('to', searchTerm)
 
-          const mapped = data.emails.map((e: any) => ({
-            id: Number(e.uid) || e.id,
-            from: {
-              name: e.fromName || `New Email`,
-              email: e.fromEmail || '',
-              avatar: ''
-            },
-            to: [{ name: 'me', email: e.to || '' }],
-            subject: e.subject || 'This Emails is Empty',
-            message: e.body || e.htmlBody || 'No Email ',
-            time: e.date || e.createdAt,
-            isRead: e.isRead,
-            isStarred: e.isStarred,
-            labels: e.labels || [],
-            folder: e.folder,
-            hasAttachment: e.hasAttachment,
-            attachments: e.attachments || [],
-            replies: [],
-            cc: [],
-            bcc: []
-          }))
+  // Optionally: implement "from", "to", "subject" filters from separate inputs
+  // params.set('from', fromInputValue)
+  // params.set('to', toInputValue)
+  // params.set('subject', subjectInputValue)
 
+  // Choose API URL depending on folder
+  const apiUrl =
+    folder === 'trash'
+      ? `/api/apps/emails/delete?${params.toString()}` // deleted emails
+      : `/api/apps/emails/get?${params.toString()}`    // normal folders
 
-          dispatch(setEmails(mapped))
-        }
-      })
-      .catch(() => {
-        setReload(false)
+  fetch(apiUrl)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      if (data?.emails) {
+        setTotalPages(data.pages || 1)
 
-      })
-  }
+        const mapped = data.emails.map((e: any) => ({
+          id: Number(e.uid) || e.id,
+          from: { name: e.fromName || `New Email`, email: e.fromEmail || '', avatar: '' },
+          to: [{ name: 'me', email: e.to || '' }],
+          subject: e.subject || 'This Email is Empty',
+          message: e.body || e.htmlBody || 'No Email ',
+          time: e.date || e.createdAt,
+          isRead: e.isRead,
+          isStarred: e.isStarred,
+          labels: e.labels || [],
+          folder: e.folder,
+          hasAttachment: e.hasAttachment,
+          attachments: e.attachments || [],
+          replies: [],
+          cc: [],
+          bcc: []
+        }))
+
+        dispatch(setEmails(mapped))
+      }
+    })
+    .catch(() => setReload(false))
+}
+
 
   // ✅ Fetch Emails With Pagination
-  useEffect(() => {
-    // Fetch immediately
-    handleFetchData();
+ useEffect(() => {
+  // Always fetch immediately
+  handleFetchData();
 
-    // Set up interval to fetch every 5 seconds
+  // Only set interval if NOT searching
+  if (!searchTerm) {
     const intervalId = setInterval(() => {
       handleFetchData();
     }, 5000);
 
-    // Cleanup interval on unmount or dependency change
+    // Cleanup interval on unmount
     return () => clearInterval(intervalId);
-  }, [dispatch, folder, label, page]);
+  }
 
-
+  // If searching, return undefined (no interval)
+  return;
+}, [dispatch, folder, label, page, searchTerm]);
   // ✅ Delete Emails
   const handleDelete = async (uids: number[]) => {
     if (!uids.length) return
@@ -150,6 +160,10 @@ const EmailWrapper = ({ folder = 'inbox', label }: { folder?: string; label?: st
 
 
 
+useEffect(() => {
+  setPage(1) // reset page
+  handleFetchData()
+}, [folder, label, page, searchTerm])
 
 
   const handlePremanentDelete = async (uids: number[]) => {
@@ -269,6 +283,9 @@ const EmailWrapper = ({ folder = 'inbox', label }: { folder?: string; label?: st
           setReload={setReload}
           reload={reload}
           handleFetchData={handleFetchData}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+
 
         />
       </div>

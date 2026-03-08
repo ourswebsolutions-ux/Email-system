@@ -141,11 +141,14 @@ const MailContentList = (props: Props) => {
       email?.from?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+
+  // console.log(filtered,"helo this is the")
+
   return (
     <div className='relative overflow-hidden grow is-full'>
       <ScrollWrapper isBelowLgScreen={isBelowLgScreen}>
         <div className='flex flex-col'>
-          {filtered.map(email => (
+          {emails.map(email => (
             <div
               key={email.id}
               className={classnames('p-4 cursor-pointer', styles.emailList, { 'bg-actionHover': email.isRead })}
